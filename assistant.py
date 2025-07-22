@@ -41,8 +41,6 @@ from googleapiclient.errors import HttpError
 import openai
 
 # --- Configuration ---
-
-# --- Configuration ---
 openai.api_key = "YOUR_OPENAI_API_KEY_HERE"
 
 # 2. Set the name of your Google Drive folder.
@@ -172,22 +170,31 @@ def read_all_policies():
 def get_answer_from_ai(question, policy_context):
     """
     Sends the user's question and the policy text to OpenAI to get an answer.
+    This version uses an improved, more flexible prompt.
     """
     if not openai.api_key or openai.api_key == "YOUR_OPENAI_API_KEY_HERE":
         return "ERROR: Please add your OpenAI API key to the script to get an answer."
 
-    # This is the instruction given to the AI to control its behavior.
+    # --- NEW, IMPROVED PROMPT ---
+    # This prompt gives the AI a better strategy for answering questions,
+    # including summarizing policies for general questions.
     system_prompt = """
-    You are a professional and formal HR Policy Assistant. Your task is to answer employee questions based *only* on the provided HR policy documents.
+    You are an intelligent HR Policy Assistant. Your primary goal is to answer employee questions using *only* the content from the provided HR documents.
 
-    Follow these rules strictly:
-    1.  Base your entire answer on the text from the documents provided. Do not use any external knowledge.
-    2.  If the answer is found, state it clearly and concisely.
-    3.  When you provide an answer, you MUST cite the document name where you found the information (e.g., "According to the 'Leave Policy.docx' document...").
-    4.  If you cannot find the answer in the provided documents, you MUST respond with the exact phrase: 'I could not find an answer to your question in the provided policy documents.'
+    Your tasks are:
+    1.  **Analyze the User's Question:** Understand the user's intent. Are they asking for a specific detail (e.g., 'how many sick days?') or a general policy summary (e.g., 'tell me about travel')?
+
+    2.  **Search the Documents:** Carefully search all the provided document text to find relevant information. The user's phrasing might not be an exact match, so look for related topics and keywords. For example, if they ask about 'posh', look for 'Prevention of Sexual Harassment'.
+
+    3.  **Formulate the Answer:**
+        * If you find a **direct answer** to a specific question, provide it clearly and cite the source document name (e.g., "According to 'Leave Policy.docx', you are entitled to...").
+        * If the user asks a **general question** (like 'tell me about travel policy'), and you find the relevant document, provide a brief summary of that policy's main points. You must still cite the source document.
+        * If after a thorough search you genuinely **cannot find any relevant information** in the documents, you MUST respond with the exact phrase: 'I could not find an answer to your question in the provided policy documents.'
+
+    4.  **Adhere to Boundaries:** Do not make up information or use any knowledge outside of the provided text. Be formal and professional.
     """
 
-    print("Sending question to AI...")
+    print("Sending question to AI with new prompt...")
     try:
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -204,6 +211,7 @@ def get_answer_from_ai(question, policy_context):
         return "An error occurred while trying to contact the AI."
 
 
+
 # --- Main Program Execution ---
 if __name__ == "__main__":
     print("--- HR Policy Assistant Brain ---")
@@ -213,6 +221,10 @@ if __name__ == "__main__":
         
         # Step 2: Read the downloaded files into memory.
         policy_knowledge_base = read_all_policies()
+        
+        # --- ADD THIS LINE TO DEBUG ---
+        # This will print all the text that the script successfully read from your documents.
+        print("\n--- DEBUG: TEXT BEING SENT TO AI ---\n", policy_knowledge_base, "\n--- END OF DEBUG ---\n")
         
         if not policy_knowledge_base:
             print("\nCould not load any policy information. Please check your Google Drive folder and files.")
@@ -234,4 +246,6 @@ if __name__ == "__main__":
                 print(f"\nAssistant: {answer}")
     else:
         print("\nCould not initialize the HR Assistant due to an error during Google Drive sync.")
+
+
 
