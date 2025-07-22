@@ -1,0 +1,9 @@
+# Sensitive credential and token files
+credentials.json
+token.json
+
+# Python cache files
+__pycache__/
+
+# Local cache for downloaded policies
+policies_cache/
