@@ -1,57 +1,67 @@
-# HR Policy Assistant Bot
+# HR Policy Assistant - Core Logic
 
-This project is an HR Policy Assistant chatbot that answers employee questions based on HR policy documents. It uses Google Drive to sync policy documents, reads their content, and leverages OpenAI's GPT-3.5-turbo to generate answers.
+This project is the core logic for an HR Policy Assistant chatbot. It answers employee questions based on HR policy documents by using Google Drive to sync the files and OpenAI's GPT-3.5-turbo to generate context-aware answers. This command-line tool serves as the foundation for a future user-facing application.
 
 ## Features
-- Syncs HR policy documents from a specified Google Drive folder.
-- Reads and combines the content of all `.docx` policy files.
-- Answers questions using OpenAI's GPT-3.5-turbo, referencing only the provided policy documents.
-- Exposes a REST API endpoint for integration with other tools (e.g., Power Automate).
+
+* **Google Drive Sync**: Automatically syncs `.docx` policy documents from a specified Google Drive folder.
+* **AI-Powered Q&A**: Reads and combines the content of all policy files to answer questions using OpenAI's GPT-3.5-turbo.
+* **Source Citing**: The AI is instructed to reference only the provided policy documents and cite the source document when answering.
+* **Command-Line Interface**: Includes a simple CLI for direct interaction and testing of the core logic.
 
 ## Prerequisites
-- Python 3.7+
-- Google Cloud project with Drive API enabled
-- `credentials.json` file for Google Drive API (OAuth 2.0 client credentials)
-- OpenAI API key
+
+* Python 3.8+
+* A Google Cloud project with the Drive API enabled.
+* An OpenAI API key.
 
 ## Installation
-1. **Clone the repository** and navigate to the project folder:
-   ```bash
-   git clone <repo-url>
-   cd hr_chatbot
-   ```
-2. **Install dependencies:**
-   ```bash
-   pip install flask openai google-auth google-auth-oauthlib google-api-python-client python-docx
-   ```
-3. **Add your Google API credentials:**
-   - Place your `credentials.json` file in the project root.
-4. **Set your OpenAI API key:**
-   - The key is currently hardcoded in `run_assistant3.py`. For production, use environment variables or a config file.
+
+1.  **Clone the repository** and navigate to the project folder:
+    ```bash
+    git clone [https://github.com/your-username/hr-policy-assistant.git](https://github.com/your-username/hr-policy-assistant.git)
+    cd hr-policy-assistant
+    ```
+2.  **Install dependencies** from the `requirements.txt` file:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  **Add Google API credentials**:
+    * Follow the setup guide to create OAuth 2.0 client credentials for a **Desktop app**.
+    * Download the `credentials.json` file and place it in the project root.
+4.  **Set your OpenAI API key**:
+    * Open the `assistant.py` script.
+    * Find the line `openai.api_key = "YOUR_OPENAI_API_KEY_HERE"` and insert your key.
 
 ## Usage
-1. **Run the Flask app:**
-   ```bash
-   flask run
-   ```
-   The app will be available at [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-2. **Ask a question:**
-   Send a POST request to `/ask` with a JSON body containing your question. Example using `curl`:
-   ```bash
-   curl -X POST http://127.0.0.1:5000/ask \
-     -H "Content-Type: application/json" \
-     -d '{"question": "What is the leave policy for India?"}'
-   ```
+1.  **Run the script** from your terminal:
+    ```bash
+    python assistant.py
+    ```
+2.  **First-Time Authentication**: On the first run, your browser will open to ask for Google account login and permission. This creates a `token.json` file for future sessions.
+
+3.  **Ask a question**: Once the assistant is ready, type your question and press Enter.
+    ```
+    Your question: What is the company policy on sick leave?
+    ```
 
 ## Folder Structure
-- `run_assistant3.py` - Main application script
-- `policies/` - Local folder where policy documents are stored
-- `token.json` - Stores Google API authentication tokens
+
+
+hr-policy-assistant/
+├── assistant.py            # Main application script
+├── credentials.json        # (You provide) Google API credentials
+├── token.json              # (Auto-generated) Google API auth tokens
+├── requirements.txt        # Project dependencies
+└── policies_cache/         # (Auto-generated) Local folder for synced documents
+
 
 ## Notes
-- The bot syncs policy documents from Google Drive every time a question is asked. For better performance, consider scheduling this sync separately.
-- If the answer is not found in the policy documents, the bot will respond accordingly.
+
+* The bot syncs all policy documents from Google Drive every time it starts.
+* If the answer is not found in the policy documents, the bot is instructed to respond accordingly.
 
 ## License
-Specify your license here. 
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
