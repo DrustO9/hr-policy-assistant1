@@ -19,7 +19,7 @@ This project is the core logic for an HR Policy Assistant chatbot. It answers em
 
 1.  **Clone the repository** and navigate to the project folder:
     ```bash
-    git clone [https://github.com/your-username/hr-policy-assistant.git](https://github.com/your-username/hr-policy-assistant.git)
+    git clone https://github.com/DrustO9/hr-policy-assistant.git
     cd hr-policy-assistant
     ```
 2.  **Install dependencies** from the `requirements.txt` file:
